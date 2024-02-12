@@ -1,0 +1,6 @@
+Table Name,Column Name,Data Type,Data Length,Nullable
+product_master,pid_id,NUMBER,-1,Y
+product_master,pid_key,VARCHAR2,50,N
+product_master,pid_date,DATE,7,Y
+product_detail,pid_detail,VARCHAR2,100,Y
+product_detail,pid_desc,VARCHAR2,500,Y
