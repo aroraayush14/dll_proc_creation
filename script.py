@@ -65,7 +65,7 @@ def generate_create_temp_table_sql(table_name, columns):
 
 def generate_create_table_sql(table_name, columns):
     schema_name = 'product'
-    sql = f"CREATE TABLE {schema_name}.tolower({table_name}) (\n"
+    sql = f"CREATE TABLE {schema_name}.{table_name} (\n"
 
     # Sort the columns alphabetically
     sorted_columns = sorted(columns, key=lambda x: x[0])
@@ -116,15 +116,15 @@ def generate_create_proc_sql(table_name, columns):
     sql += '  [ingest_partition] [varchar](100) NULL,\n'
     sql += '  [ingest_channel] [varchar](100) NULL,\n'
     sql += '  [file_path] [varchar](100) NULL,\n'
-    sql += '  [root_path] [varchar](100 NULL,\n'
-    sql += '  [pipeline_name] [varchar](100 NULL,\n'
-    sql += '  [pipeline_run_id] [varchar](100 NULL,\n'
-    sql += '  [pipeline_trigger_name] [varchar](100 NULL,\n'
-    sql += '  [pipeline_trigger_id] [varchar](100 NULL,\n'
-    sql += '  [pipeline_trigger_type] [varchar](100 NULL,\n'
-    sql += '  [pipeline_trigger_date_time_utc] [datetime2](7 NULL,\n'
-    sql += '  [trans_load_date_time_utc] [datetime2](7 NULL,\n'
-    sql += '  [adle_transaction_code] [char](1 NULL,\n'
+    sql += '  [root_path] [varchar](100) NULL,\n'
+    sql += '  [pipeline_name] [varchar](100) NULL,\n'
+    sql += '  [pipeline_run_id] [varchar](100) NULL,\n'
+    sql += '  [pipeline_trigger_name] [varchar](100) NULL,\n'
+    sql += '  [pipeline_trigger_id] [varchar](100) NULL,\n'
+    sql += '  [pipeline_trigger_type] [varchar](100) NULL,\n'
+    sql += '  [pipeline_trigger_date_time_utc] [datetime2](7) NULL,\n'
+    sql += '  [trans_load_date_time_utc] [datetime2](7) NULL,\n'
+    sql += '  [adle_transaction_code] [char](1) NULL,\n'
     sql += '  [hash_key] [varbinary](32) NULL\n'
     sql += ')\n'
     sql += 'WITH\n'
