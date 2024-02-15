@@ -1,11 +1,11 @@
 #This file contains the configs for Source and Target Databases
 # Oracle database configuration
 oracle_config = {
-    'username': 'gsdb',
-    'password': 'Thisis4gsdb2use**yr**23**06***',
-    'hostname': 'rpc2114.daytonoh.ncr.com',
-    'port': '1521',
-    'service_name': 'GSDBES22'
+    'username': 'user',
+    'password': 'pss',
+    'hostname': 'server',
+    'port': 'port',
+    'service_name': 'service'
 }
 
 
