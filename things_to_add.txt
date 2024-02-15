@@ -1,0 +1,1 @@
+Need to check the column name for rate or amount keyword and change the data type to decimal(38,5)
