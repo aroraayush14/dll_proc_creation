@@ -8,15 +8,16 @@ def extract_table_name_and_columns(file_path):
         columns = []
 
         for row in reader:
-            table_name = row['Table Name']
+            table_name = row['Table Name'].lower()
             if table_name != current_table_name:
                 if current_table_name:
                     yield current_table_name, columns
                 current_table_name = table_name
                 columns = []
 
-            column_name = row['Column Name']
+            column_name = row['Column Name'].lower()
             data_type = row['Data Type']
+            data_length = row['Data Length']
             nullable = row['Nullable']
 
             
@@ -26,12 +27,20 @@ def extract_table_name_and_columns(file_path):
         if current_table_name and columns:
             yield current_table_name, columns
 
-def replace_data_types(data_type):
+def replace_data_types(column_name, data_type, data_length):
+    # Check column name for keywords
+    if 'rate' in column_name or 'amount' in column_name:
+        return f'decimal(38, 5)'
+    
     # Apply data type replacements for non-temp tables
-    data_type = re.sub(r'\bNUMBER\b', 'decimal(38, 0)', data_type)
-    data_type = re.sub(r'\bVARCHAR2\b', 'varchar', data_type)
-    data_type = re.sub(r'\bDATE\b', 'varchar(35)', data_type)
-    return data_type
+    if data_type == 'VARCHAR2':
+        return f'varchar({data_length})'
+    elif data_type == 'NUMBER':
+        return 'decimal(38, 0)'
+    elif data_type == 'DATE':
+        return 'varchar(35)'
+    else:
+        return data_type
 
 def generate_create_temp_table_sql(table_name, columns):
     schema_name = 'product'
@@ -68,9 +77,10 @@ def generate_create_table_sql(table_name, columns):
     sql = f"CREATE TABLE {schema_name}.{table_name} (\n"
 
     # Sort the columns alphabetically
-    sorted_columns = sorted(columns, key=lambda x: x[0])
+    #sorted_columns = sorted(columns, key=lambda x: x[0])
 
-    for column_name, data_type, is_not_null in sorted_columns:
+    #for column_name, data_type, is_not_null in sorted_columns:
+    for column_name, data_type, is_not_null in columns:
         sql += f"  [{column_name}] {replace_data_types(data_type)}"
         sql += ",\n"  # New line for each column
 
