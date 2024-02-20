@@ -40,7 +40,7 @@ def replace_data_types_temp_tables(data_type, data_length):
 def replace_data_types(column_name, data_type, data_length):
     # Check column name for keywords
     if '_rate' in column_name or '_amount' in column_name or '_weight' in column_name or '_height' in column_name or '_length' in column_name or '_width' in column_name:
-        return f'decimal(38, 5)'
+        return f'[decimal](38, 5)'
     
     # Apply data type replacements for main tables
     if data_type == 'VARCHAR2':
@@ -133,14 +133,12 @@ def generate_create_proc_sql(table_name, columns):
 
     for column_info in columns:
         column_name, data_type, data_length = column_info
-        sql += f"    [{column_name}] {replace_data_types(column_name, data_type, data_length)}"
-        sql += ",\n"  # New line for each column
-
-    sql += '    FROM    [trans_product_gsdb_gsdb].[market_product_relationship_temp]\n'
+        sql += f"      CAST([{column_name}] AS {replace_data_types(column_name, data_type, data_length)}) AS [{column_name}],\n"
+    sql += f'    FROM [trans_product_gsdb_gsdb].[{table_name}], \n'
     sql += '),\n'
     sql += 'rn as (\n'
     sql += '    SELECT  *, ROW_NUMBER() OVER (PARTITION BY hash_key ORDER BY \n'
-    sql += '                 last_update_timestamp DESC,\n'
+    #sql += '                 last_update_timestamp DESC,\n'
     sql += '				  infa_operation_time DESC,\n'
     sql += '                infa_sortable_sequence  DESC\n'
     sql += '        ) as _ELT_ROWNUMBERED\n'
@@ -151,7 +149,7 @@ def generate_create_proc_sql(table_name, columns):
     sql += '    FROM    rn\n'
     sql += '    WHERE _ELT_ROWNUMBERED = 1\n'
     sql += ')\n'
-    sql += 'MERGE INTO    [trans_product_gsdb_gsdb].[market_product_relationship] tgt\n'
+    sql += f'MERGE INTO    [trans_product_gsdb_gsdb].[{table_name}] tgt\n'
     sql += 'USING (\n'
     sql += '    SELECT  *\n'
     sql += '    FROM    data\n'
@@ -162,31 +160,60 @@ def generate_create_proc_sql(table_name, columns):
     for column_info in columns:
         column_name, data_type, data_length = column_info
         sql += f"    [tgt].[{column_name}] = [src].[{column_name}],\n"
-    sql += '        [tgt].[ingest_partition] = [src].[ingest_partition],\n'
-    sql += '        [tgt].[ingest_channel] = [src].[ingest_channel],\n'
-    sql += '        [tgt].[file_path] = [src].[file_path],\n'
-    sql += '        [tgt].[root_path] = [src].[root_path],\n'
-    sql += '        [tgt].[trans_load_date_time_utc] = GETDATE(),\n'
-    sql += '        [tgt].[adle_transaction_code] = [src].[infa_operation_type],\n'
-    sql += '		[tgt].[infa_operation_time]=[src].[infa_operation_time],\n'
-    sql += '	    [tgt].[infa_sortable_sequence]=[src].[infa_sortable_sequence],\n'
-    sql += '        [tgt].[pipeline_name] = @pipeline_name,\n'
-    sql += '        [tgt].[pipeline_run_id] = @pipeline_run_id,\n'
-    sql += '        [tgt].[pipeline_trigger_name] = @pipeline_trigger_name,\n'
-    sql += '        [tgt].[pipeline_trigger_id] = @pipeline_trigger_id,\n'
-    sql += '        [tgt].[pipeline_trigger_type] = @pipeline_trigger_type,\n'
-    sql += '        [tgt].[pipeline_trigger_date_time_utc] = @pipeline_trigger_date_time_utc\n'
+    sql += '    [tgt].[ingest_partition] = [src].[ingest_partition],\n'
+    sql += '    [tgt].[ingest_channel] = [src].[ingest_channel],\n'
+    sql += '    [tgt].[file_path] = [src].[file_path],\n'
+    sql += '    [tgt].[root_path] = [src].[root_path],\n'
+    sql += '    [tgt].[trans_load_date_time_utc] = GETDATE(),\n'
+    sql += '    [tgt].[adle_transaction_code] = [src].[infa_operation_type],\n'
+    sql += '    [tgt].[infa_operation_time]=[src].[infa_operation_time],\n'
+    sql += '	[tgt].[infa_sortable_sequence]=[src].[infa_sortable_sequence],\n'
+    sql += '    [tgt].[pipeline_name] = @pipeline_name,\n'
+    sql += '    [tgt].[pipeline_run_id] = @pipeline_run_id,\n'
+    sql += '    [tgt].[pipeline_trigger_name] = @pipeline_trigger_name,\n'
+    sql += '    [tgt].[pipeline_trigger_id] = @pipeline_trigger_id,\n'
+    sql += '    [tgt].[pipeline_trigger_type] = @pipeline_trigger_type,\n'
+    sql += '    [tgt].[pipeline_trigger_date_time_utc] = @pipeline_trigger_date_time_utc\n'
     sql += 'WHEN NOT MATCHED THEN \n'
     sql += '    INSERT (\n'
     for column_info in columns:
         column_name, data_type, data_length = column_info
         sql += f"    [{column_name}],\n"
+    sql += '    [ingest_partition], \n'
+    sql += '    [ingest_channel], \n'
+    sql += '    [file_path], \n'
+    sql += '    [root_path], \n'       
+    sql += '    [pipeline_name], \n'
+    sql += '    [pipeline_run_id], \n'
+    sql += '    [pipeline_trigger_name], \n'
+    sql += '    [pipeline_trigger_id], \n'
+    sql += '    [pipeline_trigger_type], \n'
+    sql += '    [pipeline_trigger_date_time_utc], \n'
+    sql += '    [trans_load_date_time_utc], \n'
+    sql += '    [adle_transaction_code], \n'
+    sql += '    [infa_operation_time], \n'
+    sql += '    [infa_sortable_sequence], \n'
+    sql += '    [hash_key] \n'
     sql += ')'
     sql += 'VALUES(\n'
     for column_info in columns:
         column_name, data_type, data_length = column_info
         sql += f"    [src].[{column_name}],\n" 
-    sql += '        [src].[hash_key]\n'
+    sql += '    [src].[ingest_partition], \n'
+    sql += '    [src].[ingest_channel], \n'
+    sql += '    [src].[file_path], \n'
+    sql += '    [src].[root_path], \n'        
+    sql += '    @pipeline_name, \n'
+    sql += '    @pipeline_run_id, \n'
+    sql += '    @pipeline_trigger_name, \n'
+    sql += '    @pipeline_trigger_id, \n'
+    sql += '    @pipeline_trigger_type, \n'
+    sql += '    @pipeline_trigger_date_time_utc, \n'
+    sql += '    GETDATE(), \n'
+    sql += '    [src].[infa_operation_type], \n'
+    sql += '    [src].[infa_operation_time], \n'
+    sql += '    [src].[infa_sortable_sequence], \n'
+    sql += '    [src].[hash_key]\n'
     sql += '    );\n'
     sql += 'END TRY\n'
     sql += 'BEGIN CATCH\n'

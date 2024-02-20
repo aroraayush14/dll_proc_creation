@@ -10,27 +10,26 @@ BEGIN TRY
 --LOAD-TYPE: Incremental temp2trans
 WITH gen_hashkey as (
     SELECT
-    [create_timestamp] [varchar](35),
-    [unspsc_code] [varchar](8),
-    [last_update_id] [varchar](30),
-    [last_update_timestamp] [varchar](35),
-    [future_corporation_code] [varchar](4),
-    [product_key] [decimal](38, 0),
-    [product_type_key] [decimal](38, 0),
-    [product_class_id] [varchar](4),
-    [corporate_product_line_code] [varchar](4),
-    [originating_company_code] [varchar](10),
-    [generic_category_code] [varchar](2),
-    [product_category_code] [varchar](2),
-    [product_id] [varchar](30),
-    [product_unformatted_id] [varchar](30),
-    [sponsor_organization_key] [decimal](38, 0),
-    [create_id] [varchar](30),
-    FROM    [trans_product_gsdb_gsdb].[market_product_relationship_temp]
+      CAST([create_timestamp] AS [varchar](35)) AS [create_timestamp],
+      CAST([unspsc_code] AS [varchar](8)) AS [unspsc_code],
+      CAST([last_update_id] AS [varchar](30)) AS [last_update_id],
+      CAST([last_update_timestamp] AS [varchar](35)) AS [last_update_timestamp],
+      CAST([future_corporation_code] AS [varchar](4)) AS [future_corporation_code],
+      CAST([product_key] AS [decimal](38, 0)) AS [product_key],
+      CAST([product_type_key] AS [decimal](38, 0)) AS [product_type_key],
+      CAST([product_class_id] AS [varchar](4)) AS [product_class_id],
+      CAST([corporate_product_line_code] AS [varchar](4)) AS [corporate_product_line_code],
+      CAST([originating_company_code] AS [varchar](10)) AS [originating_company_code],
+      CAST([generic_category_code] AS [varchar](2)) AS [generic_category_code],
+      CAST([product_category_code] AS [varchar](2)) AS [product_category_code],
+      CAST([product_id] AS [varchar](30)) AS [product_id],
+      CAST([product_unformatted_id] AS [varchar](30)) AS [product_unformatted_id],
+      CAST([sponsor_organization_key] AS [decimal](38, 0)) AS [sponsor_organization_key],
+      CAST([create_id] AS [varchar](30)) AS [create_id],
+    FROM [trans_product_gsdb_gsdb].[product_master], 
 ),
 rn as (
     SELECT  *, ROW_NUMBER() OVER (PARTITION BY hash_key ORDER BY 
-                 last_update_timestamp DESC,
 				  infa_operation_time DESC,
                 infa_sortable_sequence  DESC
         ) as _ELT_ROWNUMBERED
@@ -41,7 +40,7 @@ data as (
     FROM    rn
     WHERE _ELT_ROWNUMBERED = 1
 )
-MERGE INTO    [trans_product_gsdb_gsdb].[market_product_relationship] tgt
+MERGE INTO    [trans_product_gsdb_gsdb].[product_master] tgt
 USING (
     SELECT  *
     FROM    data
@@ -65,20 +64,20 @@ UPDATE SET
     [tgt].[product_unformatted_id] = [src].[product_unformatted_id],
     [tgt].[sponsor_organization_key] = [src].[sponsor_organization_key],
     [tgt].[create_id] = [src].[create_id],
-        [tgt].[ingest_partition] = [src].[ingest_partition],
-        [tgt].[ingest_channel] = [src].[ingest_channel],
-        [tgt].[file_path] = [src].[file_path],
-        [tgt].[root_path] = [src].[root_path],
-        [tgt].[trans_load_date_time_utc] = GETDATE(),
-        [tgt].[adle_transaction_code] = [src].[infa_operation_type],
-		[tgt].[infa_operation_time]=[src].[infa_operation_time],
-	    [tgt].[infa_sortable_sequence]=[src].[infa_sortable_sequence],
-        [tgt].[pipeline_name] = @pipeline_name,
-        [tgt].[pipeline_run_id] = @pipeline_run_id,
-        [tgt].[pipeline_trigger_name] = @pipeline_trigger_name,
-        [tgt].[pipeline_trigger_id] = @pipeline_trigger_id,
-        [tgt].[pipeline_trigger_type] = @pipeline_trigger_type,
-        [tgt].[pipeline_trigger_date_time_utc] = @pipeline_trigger_date_time_utc
+    [tgt].[ingest_partition] = [src].[ingest_partition],
+    [tgt].[ingest_channel] = [src].[ingest_channel],
+    [tgt].[file_path] = [src].[file_path],
+    [tgt].[root_path] = [src].[root_path],
+    [tgt].[trans_load_date_time_utc] = GETDATE(),
+    [tgt].[adle_transaction_code] = [src].[infa_operation_type],
+    [tgt].[infa_operation_time]=[src].[infa_operation_time],
+	[tgt].[infa_sortable_sequence]=[src].[infa_sortable_sequence],
+    [tgt].[pipeline_name] = @pipeline_name,
+    [tgt].[pipeline_run_id] = @pipeline_run_id,
+    [tgt].[pipeline_trigger_name] = @pipeline_trigger_name,
+    [tgt].[pipeline_trigger_id] = @pipeline_trigger_id,
+    [tgt].[pipeline_trigger_type] = @pipeline_trigger_type,
+    [tgt].[pipeline_trigger_date_time_utc] = @pipeline_trigger_date_time_utc
 WHEN NOT MATCHED THEN 
     INSERT (
     [create_timestamp],
@@ -97,6 +96,21 @@ WHEN NOT MATCHED THEN
     [product_unformatted_id],
     [sponsor_organization_key],
     [create_id],
+    [ingest_partition], 
+    [ingest_channel], 
+    [file_path], 
+    [root_path], 
+    [pipeline_name], 
+    [pipeline_run_id], 
+    [pipeline_trigger_name], 
+    [pipeline_trigger_id], 
+    [pipeline_trigger_type], 
+    [pipeline_trigger_date_time_utc], 
+    [trans_load_date_time_utc], 
+    [adle_transaction_code], 
+    [infa_operation_time], 
+    [infa_sortable_sequence], 
+    [hash_key] 
 )VALUES(
     [src].[create_timestamp],
     [src].[unspsc_code],
@@ -114,7 +128,21 @@ WHEN NOT MATCHED THEN
     [src].[product_unformatted_id],
     [src].[sponsor_organization_key],
     [src].[create_id],
-        [src].[hash_key]
+    [src].[ingest_partition], 
+    [src].[ingest_channel], 
+    [src].[file_path], 
+    [src].[root_path], 
+    @pipeline_name, 
+    @pipeline_run_id, 
+    @pipeline_trigger_name, 
+    @pipeline_trigger_id, 
+    @pipeline_trigger_type, 
+    @pipeline_trigger_date_time_utc, 
+    GETDATE(), 
+    [src].[infa_operation_type], 
+    [src].[infa_operation_time], 
+    [src].[infa_sortable_sequence], 
+    [src].[hash_key]
     );
 END TRY
 BEGIN CATCH
