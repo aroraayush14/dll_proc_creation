@@ -29,7 +29,7 @@ def extract_table_name_and_columns(file_path):
 
 def replace_data_types(column_name, data_type, data_length):
     # Check column name for keywords
-    if 'rate' in column_name or 'amount' in column_name:
+    if 'rate' in column_name or 'amount' in column_name or 'weight' in column_name or 'height' in column_name or 'lenght' in column_name or 'width' in column_name:
         return f'decimal(38, 5)'
     
     # Apply data type replacements for non-temp tables
@@ -80,8 +80,8 @@ def generate_create_table_sql(table_name, columns):
     #sorted_columns = sorted(columns, key=lambda x: x[0])
 
     #for column_name, data_type, is_not_null in sorted_columns:
-    for column_name, data_type, is_not_null in columns:
-        sql += f"  [{column_name}] {replace_data_types(data_type)}"
+    for column_name, data_type in columns:
+        #sql += f"  [{column_name}] {replace_data_types(data_type)}"
         sql += ",\n"  # New line for each column
 
     # Append the additional code
