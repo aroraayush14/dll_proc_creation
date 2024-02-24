@@ -1,0 +1,10 @@
+{
+  "PRODUCT_MASTER": {
+    "Primary Key Information": [
+      {
+        "Primary Key": "PRODUCT_KEY",
+        "Position": 1
+      }
+    ]
+  }
+}

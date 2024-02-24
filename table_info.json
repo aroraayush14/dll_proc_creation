@@ -1,0 +1,118 @@
+{
+  "PRODUCT_MASTER": {
+    "Table Information": [
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "CREATE_TIMESTAMP",
+        "data_type": "DATE",
+        "data_lenght": 7,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "UNSPSC_CODE",
+        "data_type": "VARCHAR2",
+        "data_lenght": 8,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "LAST_UPDATE_ID",
+        "data_type": "VARCHAR2",
+        "data_lenght": 30,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "LAST_UPDATE_TIMESTAMP",
+        "data_type": "DATE",
+        "data_lenght": 7,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "FUTURE_CORPORATION_CODE",
+        "data_type": "VARCHAR2",
+        "data_lenght": 4,
+        "nullable": "Y"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "PRODUCT_KEY",
+        "data_type": "NUMBER",
+        "data_lenght": 22,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "PRODUCT_TYPE_KEY",
+        "data_type": "NUMBER",
+        "data_lenght": 22,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "PRODUCT_CLASS_ID",
+        "data_type": "VARCHAR2",
+        "data_lenght": 4,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "CORPORATE_PRODUCT_LINE_CODE",
+        "data_type": "VARCHAR2",
+        "data_lenght": 4,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "ORIGINATING_COMPANY_CODE",
+        "data_type": "VARCHAR2",
+        "data_lenght": 10,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "GENERIC_CATEGORY_CODE",
+        "data_type": "VARCHAR2",
+        "data_lenght": 2,
+        "nullable": "Y"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "PRODUCT_CATEGORY_CODE",
+        "data_type": "VARCHAR2",
+        "data_lenght": 2,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "PRODUCT_ID",
+        "data_type": "VARCHAR2",
+        "data_lenght": 30,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "PRODUCT_UNFORMATTED_ID",
+        "data_type": "VARCHAR2",
+        "data_lenght": 30,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "SPONSOR_ORGANIZATION_KEY",
+        "data_type": "NUMBER",
+        "data_lenght": 22,
+        "nullable": "N"
+      },
+      {
+        "table_name": "PRODUCT_MASTER",
+        "column_name": "CREATE_ID",
+        "data_type": "VARCHAR2",
+        "data_lenght": 30,
+        "nullable": "N"
+      }
+    ]
+  }
+}

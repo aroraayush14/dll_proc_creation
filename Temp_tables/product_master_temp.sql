@@ -1,4 +1,4 @@
-CREATE TABLE product.product_master_temp (
+CREATE TABLE trans_product_gsdb_gsdb.product_master_temp (
   [infa_operation_time] [varchar](35) NULL,
   [infa_operation_type] [varchar](1) NULL,
   [corporate_product_line_code] [varchar](4),
@@ -27,4 +27,3 @@ WITH
   DISTRIBUTION = ROUND_ROBIN,
   HEAP
 )
-GO

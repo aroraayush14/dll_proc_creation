@@ -1,4 +1,4 @@
-CREATE TABLE product.product_master (
+CREATE TABLE trans_product_gsdb_gsdb.product_master (
   [create_timestamp] [varchar](35),
   [unspsc_code] [varchar](8),
   [last_update_id] [varchar](30),
@@ -34,4 +34,4 @@ WITH
   DISTRIBUTION = HASH([hash_key]),
   CLUSTERED COLUMNSTORE INDEX
 )
-GO
+GO;
