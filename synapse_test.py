@@ -41,7 +41,7 @@ def get_table_ddl(schema_name, table_name, cursor):
     cursor.execute(ddl_query)
     rows = cursor.fetchall()
 
-    ddl = f"CREATE TABLE {schema_name}.{table_name} (\n"
+    ddl = f"CREATE EXTERNAL TABLE {schema_name}.{table_name} (\n"
     for row in rows:
         column_name, data_type, char_max_length, numeric_precision, numeric_scale, collation_name = row
         column_definition = f"    {column_name} {data_type}"
@@ -52,7 +52,10 @@ def get_table_ddl(schema_name, table_name, cursor):
         if collation_name is not None:
             column_definition += f" COLLATE {collation_name}"
         ddl += column_definition + ",\n"
-
+    ddl = '(\n'
+    ddl = '     DATA SOURCE = []\n'
+    ddl = '     LOCATION = []\n'
+    ddl = '     FILE_FORMAT = [SynapseParquetFormat]'
     ddl = ddl.rstrip(",\n") + "\n);"
     return ddl
 
@@ -61,12 +64,12 @@ def create_table_ddl_files(schema_name, cursor):
     cursor.execute(table_sql_query)
     table_names = [row[0] for row in cursor.fetchall()]
 
-    ddl_directory = f"{schema_name}_DDL"
+    ddl_directory = f"{schema_name}_ExternalTables_DDL"
     os.makedirs(ddl_directory, exist_ok=True)
 
     for table_name in table_names:
         ddl = get_table_ddl(schema_name, table_name, cursor)
-        file_path = os.path.join(ddl_directory, f"{table_name}_DDL.sql")
+        file_path = os.path.join(ddl_directory, f"{table_name}.sql")
 
         with open(file_path, "w") as ddl_file:
             ddl_file.write(ddl)
