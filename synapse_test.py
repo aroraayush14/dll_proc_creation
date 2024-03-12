@@ -31,12 +31,14 @@ def create_table_ddl_files(schema_name, cursor):
         table_name, _, _, _, derived_column, _, location = row
         data_source = "hub" if schema_name[:3].lower() == "hub" else "pub"
         
+        ddl_columns = [f"    {derived_column}"]
+        ddl_columns.append(f"    DATA_SOURCE = {data_source}")
+        ddl_columns.append(f"    LOCATION = '{location}'")
+        ddl_columns.append("    FILE_FORMAT = [SynapseParquetFormat]")
+
         ddl = f"CREATE EXTERNAL TABLE {schema_name}.{table_name} (\n"
-        ddl += f"    {derived_column},\n"
-        ddl += f"    DATA_SOURCE = {data_source}\n"
-        ddl += f"    LOCATION = '{location}'\n"
-        ddl += "    FILE_FORMAT = [SynapseParquetFormat]\n"
-        ddl += ");"
+        ddl += ",\n".join(ddl_columns)
+        ddl += "\n);"
 
         file_path = os.path.join(ddl_directory, f"{table_name}.sql")
         with open(file_path, "w") as ddl_file:
