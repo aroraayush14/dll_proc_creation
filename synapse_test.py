@@ -20,6 +20,34 @@ def get_table_sql_query(schema_name):
     ORDER BY c.table_name, c.ORDINAL_POSITION asc"""
     return table_sql_query
 
+
+def export_query_result_to_csv(schema_name, cursor):
+    table_sql_query = get_table_sql_query(schema_name)
+    cursor.execute(table_sql_query)
+    table_rows = cursor.fetchall()
+
+    csv_directory = f"{schema_name}_CSV_Export"
+    os.makedirs(csv_directory, exist_ok=True)
+
+    csv_file_path = os.path.join(csv_directory, f"{schema_name}_query_result.csv")
+
+    with open(csv_file_path, mode='w', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+
+        # Write header
+        header = ['table_name', 'column_name', 'data_type', 'character_maximum_length', 'derivedcolumn', 'collation_name', 'location']
+        csv_writer.writerow(header)
+
+        # Write data
+        csv_writer.writerows(table_rows)
+
+# Take input for schema
+schema_name = input('Enter Schema Name: ')
+
+# Get table SQL query and execute
+cursor = connect.cursor()
+export_query_result_to_csv(schema_name, cursor)
+
 def create_table_ddl_files(schema_name, cursor):
     table_sql_query = get_table_sql_query(schema_name)
     cursor.execute(table_sql_query)
