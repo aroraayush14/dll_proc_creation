@@ -28,7 +28,7 @@ WITH gen_hashkey as (
       CAST([create_id] AS [varchar](30)) AS [create_id],
     FROM [trans_product_gsdb_gsdb].[product_master], 
 ),
-rn as (
+CAST(hashbytes('sha2_256', CONCAT()) AS VARBINARY(32)) AS [hash_key]rn as (
     SELECT  *, ROW_NUMBER() OVER (PARTITION BY hash_key ORDER BY 
 				  infa_operation_time DESC,
                 infa_sortable_sequence  DESC

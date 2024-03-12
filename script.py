@@ -1,4 +1,5 @@
 import csv
+import json
 
 def extract_table_name_and_columns(file_path):
     with open(file_path, 'r') as file:
@@ -114,8 +115,27 @@ def generate_create_table_sql(table_name, columns):
 
     return sql
 
+def extract_primary_key_info(pk_file_path, table_name):
+    with open(pk_file_path, 'r') as json_file:
+        data = json.load(json_file)
+        if table_name in data:
+            return data[table_name].get("Primary Key Information", [])
+        else:
+            return []
+        
+def generate_sql(primary_keys):
+    sql = "CAST(hashbytes('sha2_256', CONCAT("
+    
+    for i, key_info in enumerate(primary_keys):
+        column_name = key_info.get("Primary Key", "")
+        sql += f"UPPER(COALESCE([{column_name}], ''))"
+        if i < len(primary_keys) - 1:
+            sql += ",'||',"
+    
+    sql += ")) AS VARBINARY(32)) AS [hash_key]"
+    return sql
 
-def generate_create_proc_sql(table_name, columns):
+def generate_create_proc_sql(table_name, columns, primary_keys):
     schema_name = 'product'
     sql = f"CREATE PROCEDURE [{schema_name}].[{table_name}_proc] \n"
         # Append the additional code
@@ -136,6 +156,9 @@ def generate_create_proc_sql(table_name, columns):
         sql += f"      CAST([{column_name}] AS {replace_data_types(column_name, data_type, data_length)}) AS [{column_name}],\n"
     sql += f'    FROM [trans_product_gsdb_gsdb].[{table_name}], \n'
     sql += '),\n'
+    primary_key_sql = generate_sql(primary_keys)
+    sql += primary_key_sql
+
     sql += 'rn as (\n'
     sql += '    SELECT  *, ROW_NUMBER() OVER (PARTITION BY hash_key ORDER BY \n'
     #sql += '                 last_update_timestamp DESC,\n'
@@ -265,6 +288,7 @@ file_path = 'table_info.csv'
 
 # Extract table name and columns
 for table_name, columns in extract_table_name_and_columns(file_path):
+    primary_keys = extract_primary_key_info('pk_info.json', table_name)
     # Generate SQL statements and save them to files
     sql_statements_temp = generate_create_temp_table_sql(table_name, columns)
     with open(f"Temp_tables/{table_name}_temp.sql", 'w') as output_file:
@@ -275,6 +299,6 @@ for table_name, columns in extract_table_name_and_columns(file_path):
         output_file.write(sql_statements)
 
     # Generate SQL statements using generate_create_proc_sql and save them to files
-    sql_statements_proc = generate_create_proc_sql(table_name, columns)
+    sql_statements_proc = generate_create_proc_sql(table_name, columns, primary_keys)
     with open(f"Stored_Procs/{table_name}_proc.sql", 'w') as output_file:
         output_file.write(sql_statements_proc)
