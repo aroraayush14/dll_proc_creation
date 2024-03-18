@@ -34,3 +34,38 @@ schema_name = input('Enter Schema Name: ')
 # Get table SQL query and execute
 cursor = connect.cursor()
 create_table_ddl_files(schema_name, cursor)
+
+
+
+-------------------------------------------
+
+
+def execute_sql_scripts(script_base_directory, log_path):
+    sep_line = '-' * 100
+    cursor = connect_atmco.cursor()
+
+    for schema_dir in os.listdir(script_base_directory):
+        schema_dir_path = os.path.join(script_base_directory, schema_dir)
+        if os.path.isdir(schema_dir_path):
+            for filename in os.listdir(schema_dir_path):
+                if filename.endswith(".sql"):
+                    file_path = os.path.join(schema_dir_path, filename)
+                    script_name = os.path.splitext(filename)[0]
+                    with open(file_path, 'r', encoding='utf-8') as file:
+                        sql_script = file.read()
+                        try:
+                            cursor.execute(sql_script)
+                            print(f"Script '{script_name}' executed successfully.")
+                        except Exception as e:
+                            log_error(log_path, sep_line, script_name, str(e), file_path)
+                            print(f"Error executing script '{script_name}': {str(e)}")
+
+    connect_atmco.commit()
+    connect_atmco.close()
+
+
+external_table_dir = 'serverless1'  # Assuming this is the base directory containing schema directories
+log_file_path = 'error.log'
+
+execute_sql_scripts(external_table_dir, log_file_path)
+
